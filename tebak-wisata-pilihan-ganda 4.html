@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Game Tebak Wisata Karanganyar - Pilihan Ganda</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #e0f7fa; margin: 0; padding: 20px; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    h1 { text-align: center; }
+    .question { font-size: 1.2em; margin-bottom: 20px; }
+    .options { list-style: none; padding: 0; }
+    .options li { margin-bottom: 10px; }
+    .options button {
+      width: 100%; padding: 10px; border: 1px solid #ccc; background: #fafafa; cursor: pointer;
+      border-radius: 4px; font-size: 1em; text-align: left;
+    }
+    .options button:hover { background: #e0f2f1; }
+    .options button.correct { background: #a5d6a7; }
+    .options button.wrong { background: #ef9a9a; }
+    .feedback { margin-top: 15px; font-weight: bold; }
+    .next-btn { margin-top: 20px; padding: 10px 20px; font-size: 1em; cursor: pointer; background: #00796b; color: white; border: none; border-radius: 4px; }
+    .next-btn:hover { background: #004d40; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Game Wisata Karanganyar</h1>
+    <div class="question" id="question"></div>
+    <ul class="options" id="options"></ul>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" style="display:none;" onclick="nextQuestion()">Next</button>
+  </div>
+
+  <script>
+    const wisata = [
+      "Grotta Jurang Jero", "Air Terjun Jumog", "Wisata Alam Karanganyar",
+      "Tawangmangu", "Grojogan Sewu", "Air Terjun Parangijo",
+      "Kaliadem", "Bukit Sekipan", "Wisata Alam Nirmala", "Gua Putri Kencono"
+    ];
+
+    let soal = 0;
+    let skor = 0;
+
+    function acakOpsi(jawabanBenar) {
+      const opsi = [jawabanBenar];
+      while (opsi.length < 4) {
+        const pilihan = wisata[Math.floor(Math.random() * wisata.length)];
+        if (!opsi.includes(pilihan)) opsi.push(pilihan);
+      }
+      return opsi.sort(() => Math.random() - 0.5);
+    }
+
+    function tampilkanSoal() {
+      document.getElementById("feedback").textContent = "";
+      document.getElementById("nextBtn").style.display = "none";
+
+      if (soal >= wisata.length) {
+        document.querySelector(".container").innerHTML = `<h1>Game Selesai!</h1><p>Skor Anda: ${skor} dari ${wisata.length}</p>`;
+        return;
+      }
+
+      const benar = wisata[soal];
+      const clue = benar.substring(0, 5) + "...";
+      const opsi = acakOpsi(benar);
+
+      document.getElementById("question").textContent = `Soal ${soal + 1}: Pilih nama wisata yang sesuai dengan petunjuk "${clue}"`;
+
+      const optionsElem = document.getElementById("options");
+      optionsElem.innerHTML = "";
+
+      opsi.forEach(pilihan => {
+        const btn = document.createElement("button");
+        btn.textContent = pilihan;
+        btn.onclick = () => periksaJawaban(btn, pilihan === benar);
+        const li = document.createElement("li");
+        li.appendChild(btn);
+        optionsElem.appendChild(li);
+      });
+    }
+
+    function periksaJawaban(button, benar) {
+      const buttons = document.querySelectorAll("#options button");
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === wisata[soal]) btn.classList.add("correct");
+        else if (btn === button && !benar) btn.classList.add("wrong");
+      });
+
+      document.getElementById("feedback").textContent = benar ? "✅ Benar!" : `❌ Salah! Jawaban: ${wisata[soal]}`;
+      if (benar) skor++;
+      document.getElementById("nextBtn").style.display = "inline-block";
+    }
+
+    function nextQuestion() {
+      soal++;
+      tampilkanSoal();
+    }
+
+    tampilkanSoal();
+  </script>
+</body>
+</html>
